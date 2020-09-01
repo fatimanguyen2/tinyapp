@@ -39,7 +39,11 @@ app.get('/urls/new', (req, res) => {
 
 app.get("/u/:shortURL", (req, res) => {
   const longURL = urlDatabase[req.params.shortURL];
-  res.redirect(longURL);
+  if (longURL.startsWith('http://')) {
+    res.redirect(longURL);
+  } else {
+    res.redirect('http://' + longURL);
+  }
 });
 
 app.get('/urls/:shortURL', (req, res) => {
@@ -48,7 +52,7 @@ app.get('/urls/:shortURL', (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
-  console.log(req.body);  // Log the POST request body to the console
+  // console.log(req.body);  // Log the POST request body to the console
   const newShortURL = generateRandomString();
   urlDatabase[newShortURL] = req.body.longURL;
   res.redirect(`/urls/${newShortURL}`);         // Respond with 'Ok' (we will replace this)
@@ -57,11 +61,11 @@ app.post("/urls", (req, res) => {
 app.post('/urls/:shortURL/delete', (req, res) => {
   const shortURL = req.params.shortURL;
   delete urlDatabase[shortURL];
-  console.log(urlDatabase)
   res.redirect('/urls');
 });
 
-app.post('/urls/:shortURL', (req, res) => {
+app.post('/urls/:shortURL/update', (req, res) => {
+  urlDatabase[req.params.shortURL] = req.body.updatedLongURL;
   res.redirect(`/urls/${req.params.shortURL}`);
 });
 
