@@ -14,7 +14,7 @@ const urlDatabase = {
 
 const users = {};
 
-const generateRandomString = function generateRandomString() {
+const generateRandomString = function () {
   const str = Math.random().toString(36).substring(7);
   return str;
 };
@@ -34,14 +34,14 @@ app.get('/hello', (req, res) => {
 app.get('/urls', (req, res) => {
   const templateVars = {
     urls: urlDatabase,
-    username: req.cookies['username']
+    user: users[req.cookies['user_id']]
   };
   res.render('urls_index', templateVars);
 });
 
 app.get('/urls/new', (req, res) => {
   const templateVars = {
-    username: req.cookies["username"],
+    user: users[req.cookies['user_id']]
   };
   res.render('urls_new', templateVars);
 });
@@ -59,14 +59,14 @@ app.get('/urls/:shortURL', (req, res) => {
   const templateVars = {
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL],
-    username: req.cookies['username']
+    user: users[req.cookies['user_id']]
   };
   res.render('urls_show', templateVars);
 });
 
 app.get('/register', (req, res) => {
   const templateVars = {
-    username: req.cookies['username']
+    user: users[req.cookies['user_id']]
   };
   res.render('registration', templateVars);
 });
