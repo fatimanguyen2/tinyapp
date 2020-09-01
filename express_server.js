@@ -12,6 +12,8 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+const users = {};
+
 const generateRandomString = function generateRandomString() {
   const str = Math.random().toString(36).substring(7);
   return str;
@@ -30,12 +32,15 @@ app.get('/hello', (req, res) => {
 });
 
 app.get('/urls', (req, res) => {
-  let templateVars = {urls: urlDatabase, username: req.cookies['username']};
+  const templateVars = {
+    urls: urlDatabase,
+    username: req.cookies['username']
+  };
   res.render('urls_index', templateVars);
 });
 
 app.get('/urls/new', (req, res) => {
-  let templateVars = {
+  const templateVars = {
     username: req.cookies["username"],
   };
   res.render('urls_new', templateVars);
@@ -51,15 +56,25 @@ app.get("/u/:shortURL", (req, res) => {
 });
 
 app.get('/urls/:shortURL', (req, res) => {
-  let templateVars = {shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], username: req.cookies['username']};
+  const templateVars = {
+    shortURL: req.params.shortURL,
+    longURL: urlDatabase[req.params.shortURL],
+    username: req.cookies['username']
+  };
   res.render('urls_show', templateVars);
 });
 
+app.get('/register', (req, res) => {
+  const templateVars = {
+    username: req.cookies['username']
+  };
+  res.render('registration', templateVars);
+});
+
 app.post("/urls", (req, res) => {
-  // console.log(req.body);  // Log the POST request body to the console
   const newShortURL = generateRandomString();
   urlDatabase[newShortURL] = req.body.longURL;
-  res.redirect(`/urls/${newShortURL}`);         // Respond with 'Ok' (we will replace this)
+  res.redirect(`/urls/${newShortURL}`);
 });
 
 app.post('/urls/:shortURL/delete', (req, res) => {
@@ -80,6 +95,17 @@ app.post('/login', (req, res) => {
 
 app.post('/logout', (req, res) => {
   res.clearCookie('username');
+  res.redirect('/urls');
+});
+
+app.post('/register', (req, res) => {
+  const user = generateRandomString();
+  users[user] = {
+    id: user,
+    email: req.body.email,
+    password: req.body.password
+  };
+  res.cookie('user_id', user);
   res.redirect('/urls');
 });
 
