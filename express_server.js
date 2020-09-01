@@ -11,12 +11,25 @@ const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
-
+// users[user] = {
+//   id: user,
+//   email: req.body.email,
+//   password: req.body.password
+// };
 const users = {};
 
-const generateRandomString = function () {
+const generateRandomString = function generateRandomString() {
   const str = Math.random().toString(36).substring(7);
   return str;
+};
+
+const containsEmail = function(email) {
+  for (user in users) {
+    if (email === users[user].email) {
+      return true
+    }
+  }
+  return false;
 };
 
 app.get("/", (req, res) => {
@@ -99,14 +112,19 @@ app.post('/logout', (req, res) => {
 });
 
 app.post('/register', (req, res) => {
-  const user = generateRandomString();
-  users[user] = {
-    id: user,
-    email: req.body.email,
-    password: req.body.password
-  };
-  res.cookie('user_id', user);
-  res.redirect('/urls');
+  if (!req.body.email || !req.body.password || containsEmail(req.body.email)) {
+    res.sendStatus(400);
+  } else {
+    const user = generateRandomString();
+    users[user] = {
+      id: user,
+      email: req.body.email,
+      password: req.body.password
+    };
+    res.cookie('user_id', user);
+    res.redirect('/urls');
+  }
+  console.log(users)
 });
 
 app.listen(PORT, () => {
