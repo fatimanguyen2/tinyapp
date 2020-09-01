@@ -3,8 +3,8 @@ const app = express();
 const PORT = 8080; // default port 8080
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
-const cookieParser = require('cookie-parser')
-app.use(cookieParser())
+const cookieParser = require('cookie-parser');
+app.use(cookieParser());
 app.set('view engine', 'ejs');
 
 const urlDatabase = {
@@ -79,7 +79,7 @@ app.post('/login', (req, res) => {
 });
 
 app.post('/logout', (req, res) => {
-  res.clearCookie('username')
+  res.clearCookie('username');
   res.redirect('/urls');
 });
 
