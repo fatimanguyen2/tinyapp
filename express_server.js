@@ -107,7 +107,8 @@ app.get('/login', (req, res) => {
 
 app.post("/urls", (req, res) => {
   const newShortURL = generateRandomString();
-  urlDatabase[newShortURL] = req.body.longURL;
+  urlDatabase[newShortURL] = {longURL: req.body.longURL, userID: req.cookies['user_id']};
+  console.log(urlDatabase);
   res.redirect(`/urls/${newShortURL}`);
 });
 
