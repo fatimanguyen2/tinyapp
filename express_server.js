@@ -32,6 +32,14 @@ const containsEmail = function(email) {
   return false;
 };
 
+const findUserFromEmail = email => {
+  for (user in users) {
+    if (users[user].email === email) {
+      return user;
+    }
+  }
+};
+
 app.get("/", (req, res) => {
   res.send("Hello!");
 });
@@ -84,6 +92,14 @@ app.get('/register', (req, res) => {
   res.render('registration', templateVars);
 });
 
+app.get('/login', (req, res) => {
+  const templateVars = {
+    user: users[req.cookies['user_id']]
+  };
+  res.render('login', templateVars);
+});
+
+
 app.post("/urls", (req, res) => {
   const newShortURL = generateRandomString();
   urlDatabase[newShortURL] = req.body.longURL;
@@ -102,12 +118,20 @@ app.post('/urls/:shortURL/update', (req, res) => {
 });
 
 app.post('/login', (req, res) => {
-  res.cookie('username', req.body.username);
-  res.redirect('/urls');
+  const email = req.body.email;
+  const password = req.body.password;
+  if (!containsEmail(email) || password !== users[findUserFromEmail(email)].password) {
+    res.sendStatus(403);
+  // } else if (password !== users[findUserFromEmail(email)].password) {
+  //   res.sendStatus(403);
+  } else {
+    res.cookie('user_id', findUserFromEmail(email));
+    res.redirect('/urls');
+  }
 });
 
 app.post('/logout', (req, res) => {
-  res.clearCookie('username');
+  res.clearCookie('user_id');
   res.redirect('/urls');
 });
 
@@ -124,7 +148,6 @@ app.post('/register', (req, res) => {
     res.cookie('user_id', user);
     res.redirect('/urls');
   }
-  console.log(users)
 });
 
 app.listen(PORT, () => {
