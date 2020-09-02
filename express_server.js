@@ -8,8 +8,8 @@ app.use(cookieParser());
 app.set('view engine', 'ejs');
 
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  b6UTxQ: { longURL: "https://www.lighthouselabs.ca", userID: "aJ48lW" },
+  i3BoGr: { longURL: "https://www.google.ca", userID: "aJ48lW" }
 };
 // users[user] = {
 //   id: user,
@@ -64,11 +64,18 @@ app.get('/urls/new', (req, res) => {
   const templateVars = {
     user: users[req.cookies['user_id']]
   };
-  res.render('urls_new', templateVars);
+  if (!req.cookies) {
+    console.log(req.cookies)
+    res.redirect('/login')
+  } else {
+    console.log('woof')
+    res.render('urls_new', templateVars);
+  }
 });
 
 app.get("/u/:shortURL", (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL];
+  const longURL = urlDatabase[req.params.shortURL].longURL;
+  console.log(longURL)
   if (longURL.startsWith('http://')) {
     res.redirect(longURL);
   } else {
@@ -79,7 +86,7 @@ app.get("/u/:shortURL", (req, res) => {
 app.get('/urls/:shortURL', (req, res) => {
   const templateVars = {
     shortURL: req.params.shortURL,
-    longURL: urlDatabase[req.params.shortURL],
+    longURL: urlDatabase[req.params.shortURL].longURL,
     user: users[req.cookies['user_id']]
   };
   res.render('urls_show', templateVars);
