@@ -64,11 +64,9 @@ app.get('/urls/new', (req, res) => {
   const templateVars = {
     user: users[req.cookies['user_id']]
   };
-  if (!req.cookies) {
-    console.log(req.cookies)
+  if (!req.cookies['user_id']) {
     res.redirect('/login')
   } else {
-    console.log('woof')
     res.render('urls_new', templateVars);
   }
 });
@@ -76,7 +74,7 @@ app.get('/urls/new', (req, res) => {
 app.get("/u/:shortURL", (req, res) => {
   const longURL = urlDatabase[req.params.shortURL].longURL;
   console.log(longURL)
-  if (longURL.startsWith('http://')) {
+  if (longURL.startsWith('http')) {
     res.redirect(longURL);
   } else {
     res.redirect('http://' + longURL);
