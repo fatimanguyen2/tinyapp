@@ -40,21 +40,31 @@ const findUserFromEmail = email => {
   }
 };
 
-app.get("/", (req, res) => {
-  res.send("Hello!");
-});
+const filterUrls = function(userID, database) {
+  const filtered ={};
+  for (shortUrl in database) {
+    if (userID === database[shortUrl].userID) {
+      filtered[shortUrl] = database[shortUrl].longURL;
+    }
+  }
+  return filtered;
+};
 
-app.get('/urls.json', (req , res) => {
-  res.json(urlDatabase);
-});
+// app.get("/", (req, res) => {
+//   res.send("Hello!");
+// });
 
-app.get('/hello', (req, res) => {
-  res.send('<html><body>Hello <b>World</b></body></html>\n');
-});
+// app.get('/urls.json', (req , res) => {
+//   res.json(urlDatabase);
+// });
+
+// app.get('/hello', (req, res) => {
+//   res.send('<html><body>Hello <b>World</b></body></html>\n');
+// });
 
 app.get('/urls', (req, res) => {
   const templateVars = {
-    urls: urlDatabase,
+    urls: filterUrls(req.cookies['user_id'], urlDatabase),
     user: users[req.cookies['user_id']]
   };
   res.render('urls_index', templateVars);
@@ -73,7 +83,6 @@ app.get('/urls/new', (req, res) => {
 
 app.get("/u/:shortURL", (req, res) => {
   const longURL = urlDatabase[req.params.shortURL].longURL;
-  console.log(longURL)
   if (longURL.startsWith('http')) {
     res.redirect(longURL);
   } else {
@@ -108,7 +117,6 @@ app.get('/login', (req, res) => {
 app.post("/urls", (req, res) => {
   const newShortURL = generateRandomString();
   urlDatabase[newShortURL] = {longURL: req.body.longURL, userID: req.cookies['user_id']};
-  console.log(urlDatabase);
   res.redirect(`/urls/${newShortURL}`);
 });
 
@@ -119,7 +127,7 @@ app.post('/urls/:shortURL/delete', (req, res) => {
 });
 
 app.post('/urls/:shortURL/update', (req, res) => {
-  urlDatabase[req.params.shortURL] = req.body.updatedLongURL;
+  urlDatabase[req.params.shortURL].longURL = req.body.updatedLongURL;
   res.redirect(`/urls/${req.params.shortURL}`);
 });
 
