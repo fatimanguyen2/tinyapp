@@ -1,9 +1,10 @@
 const express = require("express");
 const app = express();
-const PORT = 8080; // default port 8080
+const PORT = 8080;
 const bodyParser = require("body-parser");
-app.use(bodyParser.urlencoded({extended: true}));
 const cookieParser = require('cookie-parser');
+// const {generateRandomString, containsEmail, findUserFromEmail, urlsForUser} = require('./helpers/helper_functions')
+app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
 app.set('view engine', 'ejs');
 
@@ -11,11 +12,7 @@ const urlDatabase = {
   b6UTxQ: { longURL: "https://www.lighthouselabs.ca", userID: "aJ48lW" },
   i3BoGr: { longURL: "https://www.google.ca", userID: "aJ48lW" }
 };
-// users[user] = {
-//   id: user,
-//   email: req.body.email,
-//   password: req.body.password
-// };
+
 const users = {};
 
 const generateRandomString = function generateRandomString() {
@@ -24,7 +21,7 @@ const generateRandomString = function generateRandomString() {
 };
 
 const containsEmail = function(email) {
-  for (user in users) {
+  for (const user in users) {
     if (email === users[user].email) {
       return true
     }
@@ -33,38 +30,30 @@ const containsEmail = function(email) {
 };
 
 const findUserFromEmail = email => {
-  for (user in users) {
+  for (const user in users) {
     if (users[user].email === email) {
       return user;
     }
   }
 };
 
-const filterUrls = function(userID, database) {
+const urlsForUser = function(id) {
   const filtered ={};
-  for (shortUrl in database) {
-    if (userID === database[shortUrl].userID) {
-      filtered[shortUrl] = database[shortUrl].longURL;
+  for (const shortUrl in urlDatabase) {
+    if (id === urlDatabase[shortUrl].userID) {
+      filtered[shortUrl] = urlDatabase[shortUrl].longURL;
     }
   }
   return filtered;
 };
 
-// app.get("/", (req, res) => {
-//   res.send("Hello!");
-// });
-
-// app.get('/urls.json', (req , res) => {
-//   res.json(urlDatabase);
-// });
-
-// app.get('/hello', (req, res) => {
-//   res.send('<html><body>Hello <b>World</b></body></html>\n');
-// });
+app.get("/", (req, res) => {
+  res.send("Hello!");
+});
 
 app.get('/urls', (req, res) => {
   const templateVars = {
-    urls: filterUrls(req.cookies['user_id'], urlDatabase),
+    urls: urlsForUser(req.cookies['user_id']),
     user: users[req.cookies['user_id']]
   };
   res.render('urls_index', templateVars);
@@ -96,7 +85,12 @@ app.get('/urls/:shortURL', (req, res) => {
     longURL: urlDatabase[req.params.shortURL].longURL,
     user: users[req.cookies['user_id']]
   };
-  res.render('urls_show', templateVars);
+  const filteredUrls = urlsForUser(req.cookies['user_id']);
+  if (!req.cookies['user_id'] || Object.keys(filteredUrls).length === 0) {
+    res.send('log in');
+  } else {
+    res.render('urls_show', templateVars);
+  }
 });
 
 app.get('/register', (req, res) => {
@@ -121,14 +115,24 @@ app.post("/urls", (req, res) => {
 });
 
 app.post('/urls/:shortURL/delete', (req, res) => {
+  const filteredUrls = urlsForUser(req.cookies['user_id'])
   const shortURL = req.params.shortURL;
-  delete urlDatabase[shortURL];
-  res.redirect('/urls');
+  if (filteredUrls.hasOwnProperty(req.params.shortURL)) {
+    delete urlDatabase[shortURL];
+    res.redirect('/urls');
+  } else {
+    res.sendStatus(403);
+  }
 });
 
 app.post('/urls/:shortURL/update', (req, res) => {
-  urlDatabase[req.params.shortURL].longURL = req.body.updatedLongURL;
-  res.redirect(`/urls/${req.params.shortURL}`);
+  const filteredUrls = urlsForUser(req.cookies['user_id'])
+  if (filteredUrls.hasOwnProperty(req.params.shortURL)) {
+    urlDatabase[req.params.shortURL].longURL = req.body.updatedLongURL;
+    res.redirect(`/urls/${req.params.shortURL}`);
+  } else {
+    res.sendStatus(403)
+  }
 });
 
 app.post('/login', (req, res) => {
@@ -136,8 +140,6 @@ app.post('/login', (req, res) => {
   const password = req.body.password;
   if (!containsEmail(email) || password !== users[findUserFromEmail(email)].password) {
     res.sendStatus(403);
-  // } else if (password !== users[findUserFromEmail(email)].password) {
-  //   res.sendStatus(403);
   } else {
     res.cookie('user_id', findUserFromEmail(email));
     res.redirect('/urls');
