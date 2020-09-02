@@ -3,7 +3,7 @@ const generateRandomString = function generateRandomString() {
   return str;
 };
 
-const containsEmail = function(email) {
+const containsEmail = function(email, users) {
   for (user in users) {
     if (email === users[user].email) {
       return true
@@ -12,7 +12,7 @@ const containsEmail = function(email) {
   return false;
 };
 
-const findUserFromEmail = email => {
+const findUserFromEmail = (email, users) => {
   for (user in users) {
     if (users[user].email === email) {
       return user;
@@ -20,11 +20,11 @@ const findUserFromEmail = email => {
   }
 };
 
-const urlsForUser = function(id) {
+const urlsForUser = function(id, database) {
   const filtered ={};
-  for (const shortUrl in urlDatabase) {
-    if (userID === urlDatabase[shortUrl].userID) {
-      filtered[shortUrl] = urlDatabase[shortUrl].longURL;
+  for (const shortUrl in database) {
+    if (id === database[shortUrl].userID) {
+      filtered[shortUrl] = database[shortUrl].longURL;
     }
   }
   return filtered;
