@@ -29,8 +29,8 @@
             <tr>
               <td><%= shortUrl %></td>
               <td><%= urls[shortUrl] %></td>
-              <td><form method="GET" action="/urls/<%= url %>"><button type="submit" class="btn btn-outline-primary">Edit</button></form></td>
-              <td><form method="POST" action="/urls/<%= url %>/delete"><button type="submit" class="btn btn-outline-danger">Delete</button></form></td>
+              <td><form method="GET" action="/urls/<%= shortUrl %>"><button type="submit" class="btn btn-outline-primary">Edit</button></form></td>
+              <td><form method="POST" action="/urls/<%= shortUrl %>/delete"><button type="submit" class="btn btn-outline-danger">Delete</button></form></td>
             </tr>
           <% } %>
     <% } %>

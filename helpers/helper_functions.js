@@ -23,7 +23,7 @@ const findUserFromEmail = (email, users) => {
 const urlsForUser = function(userId, database) {
   const filtered = {};
   for (const shortUrl in database) {
-    if (userId === database[shortUrl].userID) {
+    if (userId === database[shortUrl].user_id) {
       filtered[shortUrl] = database[shortUrl].longURL;
     }
   }
